@@ -1,14 +1,15 @@
 const mongoose = require('mongoose');
+const { MongoClient} = require('mongodb');
+const uri = "mongodb+srv://duong:EIRvSa9YNM9jkvwX@movieweb.tehyrrt.mongodb.net/?retryWrites=true&w=majority&appName=Movieweb";
+const client = new MongoClient(uri);
 
 // URL kết nối đến MongoDB
 // const mongoURI = 'mongodb://0.0.0.0:27017/dbconnect';
 
 const connectDB = async () => {
     try {
-        await mongoose.connect('mongodb://127.0.0.1:27017/movieweb', {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        });
+        await client.connect();
+
         console.log('MongoDB connected');
     } catch (error) {
         console.error('MongoDB connection failed', error);
