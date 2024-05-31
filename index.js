@@ -18,7 +18,7 @@ connectDB();
 app.use(cors());
 const { MongoClient } = require('mongodb');
 const mongoose = require("mongoose");
-const uri = process.env.mongoURI;
+const uri = 'mongodb://localhost:27017';
 const client = new MongoClient(uri);
 
 // Cấu hình đường dẫn tới thư mục chứa các tệp tĩnh như CSS, JS, hình ảnh
@@ -138,7 +138,7 @@ app.use("/api", movieRoutes);
 // Function to get titles, thumbnail paths, years, and plots from watchlist of a specific user by user id
 async function getWatchlistInfoByUserId(username) {
     try {
-        await client.connect();
+        //
         const database = client.db('movieweb');
         const userCollection = database.collection('user');
         const movieCollection = database.collection('movies');
@@ -161,14 +161,12 @@ async function getWatchlistInfoByUserId(username) {
     } catch (error) {
         console.error('Error occurred:', error);
         return [];
-    } finally {
-        await client.close();
-    }
+    } 
 }
 
 async function removeAllFromWatchlist(username) {
     try {
-        await client.connect();
+        
         const database = client.db('movieweb');
         const userCollection = database.collection('user');
 
@@ -188,14 +186,12 @@ async function removeAllFromWatchlist(username) {
     } catch (error) {
         console.error('Error occurred:', error);
         return false;
-    } finally {
-        await client.close();
-    }
+    } 
 }
 
 async function removeFromWatchlist(username, movieId) {
     try {
-        await client.connect();
+        
         const database = client.db('movieweb');
         const userCollection = database.collection('user');
         // Update user's watchlist by removing movieId from it
@@ -214,14 +210,12 @@ async function removeFromWatchlist(username, movieId) {
     } catch (error) {
         console.error('Error occurred:', error);
         return false;
-    } finally {
-        await client.close();
     }
 }
 
 async function getUserInfoById(username) {
     try {
-        await client.connect();
+        
         const database = client.db('movieweb');
         const userCollection = database.collection('user');
 
@@ -244,13 +238,11 @@ async function getUserInfoById(username) {
     } catch (error) {
         console.error('Error occurred:', error);
         return null;
-    } finally {
-        await client.close();
-    }
+    } 
 }
 async function updatePassword(username, newPassword) {
     try {
-        await client.connect();
+        
         const database = client.db('movieweb');
         const userCollection = database.collection('user');
 
@@ -273,14 +265,12 @@ async function updatePassword(username, newPassword) {
     } catch (error) {
         console.error('Error occurred:', error);
         return false;
-    } finally {
-        await client.close();
-    }
+    } 
 }
 
 async function getMoviePath(id) {
     try {
-        await client.connect();
+        
         const database = client.db('movieweb');
         const movieCollection = database.collection('movies');
 
@@ -295,14 +285,12 @@ async function getMoviePath(id) {
     } catch (error) {
         console.error('Error occurred:', error);
         return [];
-    } finally {
-        await client.close();
-    }
+    } 
 }
 
 async function getLatestMovieDetail() {
     try {
-        await client.connect();
+        
         const database = client.db('movieweb');
         const moviesCollection = database.collection('movies');
 
@@ -326,7 +314,7 @@ async function getLatestMovieDetail() {
 
 async function getHorrorMovieDetail() {
     try {
-        await client.connect();
+        
         const database = client.db('movieweb');
         const moviesCollection = database.collection('movies');
         // Truy vấn dữ liệu từ collection movies
@@ -348,7 +336,7 @@ async function getHorrorMovieDetail() {
 async function getHighestRatingMovieDetail() {
     try {
         console.log('da toi');
-        await client.connect();
+        
         const database = client.db('movieweb');
         const moviesCollection = database.collection('movies');
         // Truy vấn dữ liệu từ collection movies
@@ -369,7 +357,7 @@ async function getHighestRatingMovieDetail() {
 
 async function getMovieDetail(id) {
     try {
-        await client.connect();
+        
         const database = client.db('movieweb');
         const movieCollection = database.collection('movies');
 
@@ -395,14 +383,12 @@ async function getMovieDetail(id) {
     } catch (error) {
         console.error('Error occurred:', error);
         return null; // Trả về null nếu có lỗi xảy ra
-    } finally {
-        await client.close();
-    }
+    } 
 }
 
 async function addToWatchlist(username, movieId) {
     try {
-        await client.connect();
+        
         const database = client.db('movieweb');
         const userCollection = database.collection('user');
         // Update user's watchlist by adding movieId to it
@@ -421,14 +407,12 @@ async function addToWatchlist(username, movieId) {
     } catch (error) {
         console.error('Error occurred:', error);
         return false;
-    } finally {
-        await client.close();
-    }
+    } 
 }
 
 async function registernow(username, password) {
     try {
-        await client.connect();
+        
         const database = client.db('movieweb');
         const userCollection = database.collection('user');
 
@@ -452,14 +436,12 @@ async function registernow(username, password) {
     } catch (error) {
         console.error('Error occurred:', error);
         return false;
-    } finally {
-        await client.close();
-    }
+    } 
 }
 
 async function loginnow(username, password) {
     try {
-        await client.connect();
+        
         const database = client.db('movieweb');
         const userCollection = database.collection('user');
 
@@ -482,13 +464,11 @@ async function loginnow(username, password) {
     } catch (error) {
         console.error('Error occurred:', error);
         return false;
-    } finally {
-        await client.close();
     }
 }
 async function setUserType(username) {
     try {
-        await client.connect();
+        
         const database = client.db('movieweb');
         const userCollection = database.collection('user');
         // Tạo filter để tìm các tài liệu có trường 'username' bằng giá trị của biến 'username'
@@ -508,9 +488,7 @@ async function setUserType(username) {
     } catch (error) {
         console.error('Error occurred:', error);
         return false;
-    } finally {
-        await client.close();
-    }
+    } 
 
 }
 
@@ -616,7 +594,7 @@ app.get('/index', async (req, res) => {
         res.json({ latestMovies, horrorMovies, highestRatedMovies });
 
         // Sau khi hoàn thành tất cả các yêu cầu, đóng kết nối đến MongoDB
-        await client.close();
+        //await client.close();
     } catch (error) {
         console.error('Error occurred:', error);
         res.status(500).send('Internal Server Error');
@@ -719,7 +697,7 @@ const commentSchema = new mongoose.Schema({
 const Comment = mongoose.model("Comment", commentSchema);
 async function getComments(movieID) {
     try {
-        await client.connect();
+        
         const db = client.db("movieweb"); // Database name
         const commentCollection = db.collection("newcomment"); // comment collection
         const userCollection = db.collection("user"); // user collection
@@ -759,7 +737,7 @@ async function getComments(movieID) {
 //function insert comment into MongoDB
 async function postComment(comment) {
     try {
-        await client.connect();
+        
         var db = client.db("movieweb"); // Database name
         db.collection("newcomment").insertOne(comment); //insert to db
         return { status: 201, message: "Comment saved to Mongo successfully" };
@@ -773,7 +751,7 @@ async function postComment(comment) {
 // app.get("/user/:userName", async function (req, res) {
 //     try {
 //         console.log('ok');
-//         await client.connect();
+//         
 //         var db = await client.db("movieweb");
 //         var user = db.collection("user");
 //         var user = await user.findOne({ username: req.params.userName });
