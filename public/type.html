@@ -546,20 +546,20 @@
             // var j=0;
             // var moviedata_tmp= [{}]; 
             var encodedURL_age_rating=encodeURIComponent(movie_age_rating);
-            console.log("http://localhost:5000/api/movies?genre=" + movie_genre +"&year=" +movie_year+"&average_rating=" +movie_rating+"&age_rating="+encodedURL_age_rating+"&page="+movie_page_num+"&sort="+movie_sort_value+","+movie_sort_type+"&search="+encodedURL_search_value);
+            console.log("/api/movies?genre=" + movie_genre +"&year=" +movie_year+"&average_rating=" +movie_rating+"&age_rating="+encodedURL_age_rating+"&page="+movie_page_num+"&sort="+movie_sort_value+","+movie_sort_type+"&search="+encodedURL_search_value);
 
             if (rating_flag==0){
                 console.log("Inside rating_flag==0");
                     console.log("movie_year == - All -");
-                    xhr.open("GET", "http://localhost:5000/api/movies?genre=" + movie_genre +"&year=" + movie_year +"&average_rating="+"&age_rating=" + encodedURL_age_rating +"&page=" + movie_page_num +"&sort=" + movie_sort_value + "," + movie_sort_type +"&search=" + encodedURL_search_value, false);
+                    xhr.open("GET", "/api/movies?genre=" + movie_genre +"&year=" + movie_year +"&average_rating="+"&age_rating=" + encodedURL_age_rating +"&page=" + movie_page_num +"&sort=" + movie_sort_value + "," + movie_sort_type +"&search=" + encodedURL_search_value, false);
             }else{
                 console.log("Inside rating_flag!=0");
                 if (movie_rating_tmp1 == "- All -"){
                     console.log("Inside movie_rating_tmp1 == - All - ");
-                    xhr.open("GET", "http://localhost:5000/api/movies?genre=" + movie_genre +"&year=" + movie_year+"&average_rating=- All -&age_rating=" + encodedURL_age_rating +"&page=" + movie_page_num +"&sort=" + movie_sort_value + "," + movie_sort_type +"&search=" + encodedURL_search_value, false);
+                    xhr.open("GET", "/api/movies?genre=" + movie_genre +"&year=" + movie_year+"&average_rating=- All -&age_rating=" + encodedURL_age_rating +"&page=" + movie_page_num +"&sort=" + movie_sort_value + "," + movie_sort_type +"&search=" + encodedURL_search_value, false);
                 }else if(movie_rating_tmp1 != "- All -"){
                     console.log("Inside movie_rating_tmp1 != - All -");
-                    xhr.open("GET", "http://localhost:5000/api/movies?genre=" + movie_genre +"&year=" + movie_year+"&average_rating="+movie_rating+"&age_rating=" + encodedURL_age_rating +"&page=" + movie_page_num +"&sort=" + movie_sort_value + "," + movie_sort_type +"&search=" + encodedURL_search_value, false);
+                    xhr.open("GET", "/api/movies?genre=" + movie_genre +"&year=" + movie_year+"&average_rating="+movie_rating+"&age_rating=" + encodedURL_age_rating +"&page=" + movie_page_num +"&sort=" + movie_sort_value + "," + movie_sort_type +"&search=" + encodedURL_search_value, false);
                 }else{
                     
                 }
@@ -568,7 +568,7 @@
                 console.log(movie_rating + "Inside xhr.onload");
             if (xhr.status == 200) {
             console.log("Xhr status:"+xhr.status);
-            console.log("http://localhost:5000/api/movies?genre=" + movie_genre +"&year=" +movie_year+"&average_rating=" +movie_rating+"&age_rating="+encodedURL_age_rating+"&page="+movie_page_num+"&sort="+movie_sort_value+","+movie_sort_type+"&search="+encodedURL_search_value);
+            console.log("/api/movies?genre=" + movie_genre +"&year=" +movie_year+"&average_rating=" +movie_rating+"&age_rating="+encodedURL_age_rating+"&page="+movie_page_num+"&sort="+movie_sort_value+","+movie_sort_type+"&search="+encodedURL_search_value);
                 // var container = document.getElementById("movie-list");
                
                 // moviedata = JSON.parse(xhr.responseText); // Gán nội dung phản hồi vào biến movieData
@@ -738,20 +738,20 @@
             // var moviedata_tmp= [{}];
             var encodedURL_age_rating=encodeURIComponent(movie_age_rating);
             encodedURL_search_value=encodeURIComponent(e.target.value);
-            console.log("http://localhost:5000/api/movies?genre=" + movie_genre +"&year=" +movie_year+"&average_rating=" +movie_rating+"&age_rating="+encodedURL_age_rating+"&page="+movie_page_num+"&sort="+movie_sort_value+","+movie_sort_type+"&search="+encodedURL_search_value);
+            console.log("/api/movies?genre=" + movie_genre +"&year=" +movie_year+"&average_rating=" +movie_rating+"&age_rating="+encodedURL_age_rating+"&page="+movie_page_num+"&sort="+movie_sort_value+","+movie_sort_type+"&search="+encodedURL_search_value);
 
             if (rating_flag==0){
                 console.log("Inside rating_flag==0");
                     console.log("movie_year == - All -");
-                    xhr.open("GET", "http://localhost:5000/api/movies?genre=" + movie_genre +"&year=" + movie_year +"&average_rating="+"&age_rating=" + encodedURL_age_rating +"&page=" + movie_page_num +"&sort=" + movie_sort_value + "," + movie_sort_type +"&search=" + encodedURL_search_value, false);
+                    xhr.open("GET", "/api/movies?genre=" + movie_genre +"&year=" + movie_year +"&average_rating="+"&age_rating=" + encodedURL_age_rating +"&page=" + movie_page_num +"&sort=" + movie_sort_value + "," + movie_sort_type +"&search=" + encodedURL_search_value, false);
             }else{
                 console.log("Inside rating_flag!=0");
                 if (movie_rating_tmp1 == "- All -"){
                     console.log("Inside movie_rating_tmp1 == - All - ");
-                    xhr.open("GET", "http://localhost:5000/api/movies?genre=" + movie_genre +"&year=" + movie_year+"&average_rating=- All -&age_rating=" + encodedURL_age_rating +"&page=" + movie_page_num +"&sort=" + movie_sort_value + "," + movie_sort_type +"&search=" + encodedURL_search_value, false);
+                    xhr.open("GET", "/api/movies?genre=" + movie_genre +"&year=" + movie_year+"&average_rating=- All -&age_rating=" + encodedURL_age_rating +"&page=" + movie_page_num +"&sort=" + movie_sort_value + "," + movie_sort_type +"&search=" + encodedURL_search_value, false);
                 }else if(movie_rating_tmp1 != "- All -"){
                     console.log("Inside movie_rating_tmp1 != - All -");
-                    xhr.open("GET", "http://localhost:5000/api/movies?genre=" + movie_genre +"&year=" + movie_year+"&average_rating="+movie_rating+"&age_rating=" + encodedURL_age_rating +"&page=" + movie_page_num +"&sort=" + movie_sort_value + "," + movie_sort_type +"&search=" + encodedURL_search_value, false);
+                    xhr.open("GET", "/api/movies?genre=" + movie_genre +"&year=" + movie_year+"&average_rating="+movie_rating+"&age_rating=" + encodedURL_age_rating +"&page=" + movie_page_num +"&sort=" + movie_sort_value + "," + movie_sort_type +"&search=" + encodedURL_search_value, false);
                 }else{
                     
                 }
@@ -760,7 +760,7 @@
                 console.log(movie_rating + "Inside xhr.onload");
             if (xhr.status === 200) {
                 console.log(movie_rating + "Inside xhr.status");   
-                console.log("http://localhost:5000/api/movies?genre=" + movie_genre +"&year=" +movie_year+"&average_rating=" +movie_rating+"&age_rating="+encodedURL_age_rating+"&page="+movie_page_num+"&sort="+movie_sort_value+","+movie_sort_type+"&search="+encodedURL_search_value);
+                console.log("/api/movies?genre=" + movie_genre +"&year=" +movie_year+"&average_rating=" +movie_rating+"&age_rating="+encodedURL_age_rating+"&page="+movie_page_num+"&sort="+movie_sort_value+","+movie_sort_type+"&search="+encodedURL_search_value);
                 // var container = document.getElementById("movie-list");
                 // container.innerHTML = "";     
                 // moviedata = JSON.parse(xhr.responseText); // Gán nội dung phản hồi vào biến movieData
@@ -909,20 +909,20 @@
             // console.log("movie"+movie_age_rating+"Movie encodedURL"+encodedURL_search_value);
             encodedURL_search_value=encodeURIComponent(e.target.value);
             var encodedURL_age_rating=encodeURIComponent(movie_age_rating);
-            console.log("http://localhost:5000/api/movies?genre=" + movie_genre +"&year=" +movie_year+"&average_rating=" +movie_rating+"&age_rating="+encodedURL_age_rating+"&page="+movie_page_num+"&sort="+movie_sort_value+","+movie_sort_type+"&search="+encodedURL_search_value);
+            console.log("/api/movies?genre=" + movie_genre +"&year=" +movie_year+"&average_rating=" +movie_rating+"&age_rating="+encodedURL_age_rating+"&page="+movie_page_num+"&sort="+movie_sort_value+","+movie_sort_type+"&search="+encodedURL_search_value);
 
             if (rating_flag==0){
                 console.log("Inside rating_flag==0");
                     console.log("movie_year == - All -");
-                    xhr.open("GET", "http://localhost:5000/api/movies?genre=" + movie_genre +"&year=" + movie_year +"&average_rating="+"&age_rating=" + encodedURL_age_rating +"&page=" + movie_page_num +"&sort=" + movie_sort_value + "," + movie_sort_type +"&search=" + encodedURL_search_value, false);
+                    xhr.open("GET", "/api/movies?genre=" + movie_genre +"&year=" + movie_year +"&average_rating="+"&age_rating=" + encodedURL_age_rating +"&page=" + movie_page_num +"&sort=" + movie_sort_value + "," + movie_sort_type +"&search=" + encodedURL_search_value, false);
             }else{
                 console.log("Inside rating_flag!=0");
                 if (movie_rating_tmp1 == "- All -"){
                     console.log("Inside movie_rating_tmp1 == - All - ");
-                    xhr.open("GET", "http://localhost:5000/api/movies?genre=" + movie_genre +"&year=" + movie_year+"&average_rating=- All -&age_rating=" + encodedURL_age_rating +"&page=" + movie_page_num +"&sort=" + movie_sort_value + "," + movie_sort_type +"&search=" + encodedURL_search_value, false);
+                    xhr.open("GET", "/api/movies?genre=" + movie_genre +"&year=" + movie_year+"&average_rating=- All -&age_rating=" + encodedURL_age_rating +"&page=" + movie_page_num +"&sort=" + movie_sort_value + "," + movie_sort_type +"&search=" + encodedURL_search_value, false);
                 }else if(movie_rating_tmp1 != "- All -"){
                     console.log("Inside movie_rating_tmp1 != - All -");
-                    xhr.open("GET", "http://localhost:5000/api/movies?genre=" + movie_genre +"&year=" + movie_year+"&average_rating="+movie_rating+"&age_rating=" + encodedURL_age_rating +"&page=" + movie_page_num +"&sort=" + movie_sort_value + "," + movie_sort_type +"&search=" + encodedURL_search_value, false);
+                    xhr.open("GET", "/api/movies?genre=" + movie_genre +"&year=" + movie_year+"&average_rating="+movie_rating+"&age_rating=" + encodedURL_age_rating +"&page=" + movie_page_num +"&sort=" + movie_sort_value + "," + movie_sort_type +"&search=" + encodedURL_search_value, false);
                 }else{
                     
                 }
@@ -932,7 +932,7 @@
                 console.log(movie_rating + "Inside xhr.onload");
             if (xhr.status == 200) {
             console.log("Xhr status:"+xhr.status);
-            console.log("http://localhost:5000/api/movies?genre=" + movie_genre +"&year=" +movie_year+"&average_rating=" +movie_rating+"&age_rating="+encodedURL_age_rating+"&page="+movie_page+"&sort="+movie_sort_value+","+movie_sort_type+"&search="+movie_search);
+            console.log("/api/movies?genre=" + movie_genre +"&year=" +movie_year+"&average_rating=" +movie_rating+"&age_rating="+encodedURL_age_rating+"&page="+movie_page+"&sort="+movie_sort_value+","+movie_sort_type+"&search="+movie_search);
                 // var container = document.getElementById("movie-list");
                
                 // moviedata = JSON.parse(xhr.responseText); // Gán nội dung phản hồi vào biến movieData
