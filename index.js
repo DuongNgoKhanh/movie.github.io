@@ -18,7 +18,7 @@ connectDB();
 app.use(cors());
 const { MongoClient } = require('mongodb');
 const mongoose = require("mongoose");
-const uri = 'mongodb://localhost:27017';
+const uri = process.env.mongoURI;
 const client = new MongoClient(uri);
 
 // Cấu hình đường dẫn tới thư mục chứa các tệp tĩnh như CSS, JS, hình ảnh
