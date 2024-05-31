@@ -161,7 +161,9 @@ async function getWatchlistInfoByUserId(username) {
     } catch (error) {
         console.error('Error occurred:', error);
         return [];
-    } 
+    } finally {
+        await client.close();
+    }
 }
 
 async function removeAllFromWatchlist(username) {
@@ -186,7 +188,9 @@ async function removeAllFromWatchlist(username) {
     } catch (error) {
         console.error('Error occurred:', error);
         return false;
-    } 
+    } finally {
+        await client.close();
+    }
 }
 
 async function removeFromWatchlist(username, movieId) {
@@ -210,6 +214,8 @@ async function removeFromWatchlist(username, movieId) {
     } catch (error) {
         console.error('Error occurred:', error);
         return false;
+    } finally {
+        await client.close();
     }
 }
 
@@ -238,7 +244,9 @@ async function getUserInfoById(username) {
     } catch (error) {
         console.error('Error occurred:', error);
         return null;
-    } 
+    } finally {
+        await client.close();
+    }
 }
 async function updatePassword(username, newPassword) {
     try {
@@ -265,7 +273,9 @@ async function updatePassword(username, newPassword) {
     } catch (error) {
         console.error('Error occurred:', error);
         return false;
-    } 
+    } finally {
+        await client.close();
+    }
 }
 
 async function getMoviePath(id) {
@@ -285,7 +295,9 @@ async function getMoviePath(id) {
     } catch (error) {
         console.error('Error occurred:', error);
         return [];
-    } 
+    } finally {
+        await client.close();
+    }
 }
 
 async function getLatestMovieDetail() {
@@ -383,7 +395,9 @@ async function getMovieDetail(id) {
     } catch (error) {
         console.error('Error occurred:', error);
         return null; // Trả về null nếu có lỗi xảy ra
-    } 
+    } finally {
+        await client.close();
+    }
 }
 
 async function addToWatchlist(username, movieId) {
@@ -407,7 +421,9 @@ async function addToWatchlist(username, movieId) {
     } catch (error) {
         console.error('Error occurred:', error);
         return false;
-    } 
+    } finally {
+        await client.close();
+    }
 }
 
 async function registernow(username, password) {
@@ -436,7 +452,9 @@ async function registernow(username, password) {
     } catch (error) {
         console.error('Error occurred:', error);
         return false;
-    } 
+    } finally {
+        await client.close();
+    }
 }
 
 async function loginnow(username, password) {
@@ -464,6 +482,8 @@ async function loginnow(username, password) {
     } catch (error) {
         console.error('Error occurred:', error);
         return false;
+    } finally {
+        await client.close();
     }
 }
 async function setUserType(username) {
@@ -488,7 +508,9 @@ async function setUserType(username) {
     } catch (error) {
         console.error('Error occurred:', error);
         return false;
-    } 
+    } finally {
+        await client.close();
+    }
 
 }
 
@@ -594,7 +616,7 @@ app.get('/index', async (req, res) => {
         res.json({ latestMovies, horrorMovies, highestRatedMovies });
 
         // Sau khi hoàn thành tất cả các yêu cầu, đóng kết nối đến MongoDB
-        //await client.close();
+        await client.close();
     } catch (error) {
         console.error('Error occurred:', error);
         res.status(500).send('Internal Server Error');
