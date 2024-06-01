@@ -102,10 +102,10 @@ document.addEventListener("DOMContentLoaded", function () {
     commentInf.appendChild(userName);
 
     //rating
-     var ratingStar = document.createElement("small");
-     ratingStar.setAttribute("class", "rating-star");
-     ratingStar.innerHTML = comment.rating + "/5";
-     commentInf.appendChild(ratingStar);
+    // var ratingStar = document.createElement("small");
+    // ratingStar.setAttribute("class", "rating-star");
+    // ratingStar.innerHTML = comment.rating + "/5";
+    // commentInf.appendChild(ratingStar);
 
     //time
     var date = formatDate(comment.created_at);
