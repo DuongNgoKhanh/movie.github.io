@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const commentSection = document.getElementById("comment-section");
 
   //Load và hiển thị danh sách các comment khi trang được tải
-  fetch("http://localhost:3000/getcomments/" + movieId)
+  fetch("/getcomments/" + movieId)
     .then((response) => response.json())
     .then((comments) => {
       comments.forEach((comment) => {
@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log(ratingValue);
     if (!content.trim()) return; // Kiểm tra nội dung comment không được để trống
     // Gửi yêu cầu POST để lưu comment mới vào MongoDB
-    fetch("http://localhost:3000/postcomment/" + movieId + "/" + userName, {
+    fetch("/postcomment/" + movieId + "/" + userName, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log(data);
         // Gọi endpoint để lấy thông tin người dùng dựa trên user_id
         //fetch(`/user/${data.user_id}`)
-        fetch("http://localhost:3000/user/" + userName)
+        fetch("/user/" + userName)
           .then((response) => response.json())
           .then((userData) => {
              comment = {
