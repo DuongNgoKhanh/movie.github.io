@@ -39,10 +39,13 @@ app.listen(PORT, () => {
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.post('/pay', async (req, res) => {
+
     try {
-        const amount = req.body.amount || '20'; // Mặc định là $100 nếu không có giá trị
-        console.log(amount);
-        const url = await paypal.createOrder(amount);
+        const amount = req.body.amount || '20';
+        var username = req.body.username || "john_doe";
+        var plan = req.body.plan || "default";
+        const url = await paypal.createOrder(amount, username, plan);
+        console.log(plan);
 
         res.redirect(url)
     } catch (error) {
@@ -50,95 +53,208 @@ app.post('/pay', async (req, res) => {
     }
 })
 
-// app.get('/complete-order', async (req, res) => {
-
-//     try {
-//         const captureResponse = await paypal.capturePayment(req.query.token);
-//         const invoiceId = captureResponse.id; // Assume the invoice id is in the response
-
-//         res.redirect('/pricing-plan-2.html?paymentStatus=success&invoiceId=' + invoiceId);
-//     } catch (error) {
-//         // Trường hợp có lỗi, chuyển hướng về trang cũ với thông báo lỗi
-//         res.redirect('/pricing-plan-2.html?error=true&errorMessage=' + encodeURIComponent(error.message));
-//     }
-// })
-
-app.get('/complete-order', async (req, res) => {
-    const { token } = req.query;
+async function getOrder(orderId) {
     try {
-        const payment = await paypal.capturePayment(token);
+        await client.connect();
+        const database = client.db('movieweb');
+        const ordersCollection = database.collection('orders');
 
-        // Log chi tiết phản hồi để kiểm tra cấu trúc
-        console.log('Payment response:', payment);
+        const order = await ordersCollection.findOne({ orderId });
+        return order;
+    } catch (error) {
+        console.error('Error occurred while retrieving order:', error);
+    } finally {
+        //await client.close();
+    }
+}
 
-        // Kiểm tra và truy cập thuộc tính một cách an toàn
-        const payerId = payment.payer && payment.payer.payer_id;
-        const paymentId = payment.id;
+async function updateTypeUser(username) {
+    try {
+        await client.connect();
+        const database = client.db('movieweb');
+        const userCollection = database.collection('user');
 
-        // Nếu bất kỳ thuộc tính nào không tồn tại, trả về lỗi
-        if (!payerId || !paymentId) {
-            throw new Error('Incomplete payment information received from PayPal');
+        // Tìm người dùng theo tên người dùng
+        const user = await userCollection.findOne({ username: username });
+
+        if (!user) {
+            console.log('User not found');
+            return;
         }
 
-        // Lưu hóa đơn vào MongoDB
-        const newInvoice = new Invoice({
-            paymentId: paymentId,
-            token: token,
-            payerId: payerId,
-            method: 'paypal'
-        });
+        // Cập nhật thuộc tính type của người dùng thành "pay"
+        const result = await userCollection.updateOne(
+            { username: username }, // Điều kiện tìm kiếm người dùng
+            { $set: { usertype: 'pay' } } // Dữ liệu cập nhật
+        );
 
-        await newInvoice.save();
-        res.send('Payment completed successfully');
+        if (result.modifiedCount === 0) {
+            console.log('User type was already "pay" or no modification was needed');
+        } else {
+            console.log(`User type updated successfully for username: ${username}`);
+        }
+
     } catch (error) {
-        console.error('Error capturing payment:', error);
-        res.status(500).send('Error capturing payment');
+        console.error('Error occurred:', error);
+    } finally {
+        //await client.close();
     }
-    
-});
+}
 
-
-app.get('/test-save', async (req, res) => {
+async function updateVipTime(username, plan) {
     try {
-        const testInvoice = new Invoice({
-            userId: '60b8d6f7d2a03b0015e7c4c6', // Thay thế bằng ObjectId hợp lệ từ MongoDB của bạn
-            amount: {
-                currency: 'USD',
-                total: '100.00'
-            },
-            package: 'Test Package',
-            paymentMethod: 'PayPal',
-            description: 'Test payment for Test Package',
-            createTime: new Date(),
-            updateTime: new Date(),
-            status: 'COMPLETED'
-        });
+        await client.connect();
+        const database = client.db('movieweb');
+        const usersCollection = database.collection('user');
 
-        await testInvoice.save();
-        res.send('Invoice saved successfully');
+        // Lấy thông tin người dùng từ cơ sở dữ liệu
+        const user = await usersCollection.findOne({ username: username });
+
+        let currentDate = new Date();
+        let currentVipExpiry = user ? new Date(user.vipExpiry) : null;
+        let newVipExpiry;
+
+
+        if (!user || !user.vipExpiry || new Date(user.vipExpiry) < currentDate) {
+            // Nếu không có thời gian VIP hoặc thời gian VIP trước ngày hôm nay
+            currentVipExpiry = new Date(currentDate);
+        } else {
+            // Nếu thời gian VIP sau ngày hôm nay
+            currentVipExpiry = new Date(user.vipExpiry);
+        }
+
+        switch (plan) {
+            case 'month':
+                newVipExpiry = new Date(currentVipExpiry.setMonth(currentVipExpiry.getMonth() + 1));
+                break;
+            case 'quarter':
+                newVipExpiry = new Date(currentVipExpiry.setMonth(currentVipExpiry.getMonth() + 3));
+                break;
+            case 'year':
+                newVipExpiry = new Date(currentVipExpiry.setFullYear(currentVipExpiry.getFullYear() + 1));
+                break;
+            default:
+                console.error('Invalid plan');
+                return;
+        }
+
+        // Cập nhật thời gian VIP của người dùng
+        await updateUserVipExpiryInDatabase(username, newVipExpiry);
+        console.log(`Cập nhật thời gian VIP cho user ${username} đến ${newVipExpiry}`);
+        return newVipExpiry; // Trả về thời gian VIP mới
     } catch (error) {
-        console.error('Error saving invoice:', error);
-        res.status(500).send('Error saving invoice');
+        console.error('Error occurred while updating VIP time:', error);
+    } finally {
+        //await client.close();
+    }
+}
+
+async function updateUserVipExpiryInDatabase(username, newVipExpiry) {
+    try {
+        await client.connect();
+        const database = client.db('movieweb');
+        const usersCollection = database.collection('user');
+
+        // Cập nhật thời gian VIP của người dùng dựa trên username
+        const result = await usersCollection.updateOne(
+            { username: username },
+            { $set: { vipExpiry: newVipExpiry } }
+        );
+
+        if (result.matchedCount > 0) {
+            console.log(`Cập nhật thời gian VIP cho user ${username} đến ${newVipExpiry}`);
+        } else {
+            console.warn(`Không tìm thấy user với username: ${username}`);
+        }
+    } catch (error) {
+        console.error('Error occurred while updating VIP expiry:', error);
+    } finally {
+        //await client.close();
+    }
+}
+
+async function checkAndUpdateUserType(username) {
+    try {
+        await client.connect();
+        const database = client.db('movieweb');
+        const usersCollection = database.collection('user');
+
+        // Lấy thông tin người dùng từ cơ sở dữ liệu
+        const user = await usersCollection.findOne({ username: username });
+
+        if (!user) {
+            console.warn(`Không tìm thấy user với username: ${username}`);
+            return;
+        }
+
+        const currentDate = new Date();
+        const vipExpiry = new Date(user.vipExpiry);
+
+        // Kiểm tra nếu thời gian VIP trước ngày hôm nay
+        if (!user.vipExpiry || vipExpiry < currentDate) {
+            // Cập nhật loại người dùng thành 'free'
+            const result = await usersCollection.updateOne(
+                { username: username },
+                { $set: { usertype: 'free' } }
+            );
+
+            if (result.matchedCount > 0) {
+                console.log(`Cập nhật loại user ${username} thành free vì thời gian VIP đã hết hạn.`);
+            } else {
+                console.warn(`Không tìm thấy user với username: ${username} để cập nhật loại user.`);
+            }
+        } else {
+            console.log(`User ${username} vẫn còn thời gian VIP.`);
+        }
+    } catch (error) {
+        console.error('Error occurred while checking and updating user type:', error);
+    } finally {
+        //await client.close();
+    }
+}
+
+app.get('/complete-order', async (req, res) => {
+    const orderId = req.query.token; // Lấy orderId từ query params
+
+    try {
+        const order = await getOrder(orderId);
+        if (!order) {
+            return res.status(404).send('Order not found');
+        }
+
+        const username = order.username;
+        const plan = order.plan;
+        const amount = order.amount;
+
+        console.log(`Payment completed for user: ${username}`);
+
+        const vipExpiry = await updateVipTime(username, plan);
+        await updateTypeUser(username);
+
+        res.redirect(`/success.html?username=${username}&vipExpiry=${vipExpiry.toISOString().split('T')[0]}&amount=${amount}&plan=${plan}`);
+    } catch (error) {
+        console.error('Error occurred:', error);
+        res.status(500).send('Internal Server Error');
     }
 });
-
 
 
 app.get('/cancel-order', (req, res) => {
-    res.redirect('//pricing-plan-2.html')
+    res.redirect('/pricing-plan-2.html')
 })
+
 
 //Code Quoc Anh
 const movieRoutes = require("./routes/movies");
 app.use(express.json());
-app.use(cors({origin:true,credentials:true}));
+app.use(cors({ origin: true, credentials: true }));
 
 app.use("/api", movieRoutes);
 
 // Function to get titles, thumbnail paths, years, and plots from watchlist of a specific user by user id
 async function getWatchlistInfoByUserId(username) {
     try {
-        
+        await client.connect();
         const database = client.db('movieweb');
         const userCollection = database.collection('user');
         const movieCollection = database.collection('movies');
@@ -161,12 +277,14 @@ async function getWatchlistInfoByUserId(username) {
     } catch (error) {
         console.error('Error occurred:', error);
         return [];
+    } finally {
+        //await client.close();
     }
 }
 
 async function removeAllFromWatchlist(username) {
     try {
-        
+        await client.connect();
         const database = client.db('movieweb');
         const userCollection = database.collection('user');
 
@@ -186,12 +304,14 @@ async function removeAllFromWatchlist(username) {
     } catch (error) {
         console.error('Error occurred:', error);
         return false;
-    } 
+    } finally {
+        //await client.close();
+    }
 }
 
 async function removeFromWatchlist(username, movieId) {
     try {
-        
+        await client.connect();
         const database = client.db('movieweb');
         const userCollection = database.collection('user');
         // Update user's watchlist by removing movieId from it
@@ -210,12 +330,14 @@ async function removeFromWatchlist(username, movieId) {
     } catch (error) {
         console.error('Error occurred:', error);
         return false;
+    } finally {
+        //await client.close();
     }
 }
 
 async function getUserInfoById(username) {
     try {
-        
+        await client.connect();
         const database = client.db('movieweb');
         const userCollection = database.collection('user');
 
@@ -226,23 +348,39 @@ async function getUserInfoById(username) {
             console.log('User not found');
             return null;
         }
+        //console.log(user);
+        let vipExpiry1;
+        if (user.vipExpiry && !isNaN(new Date(user.vipExpiry).getTime())) {
+            // Chuyển đổi thành chuỗi ISO và chỉ lấy phần ngày
+            vipExpiry1 = new Date(user.vipExpiry).toISOString().split('T')[0];
+        } else {
+            // Đặt giá trị mặc định là "FREE account"
+            vipExpiry1 = "Free account";
+        }
 
         // Lấy thông tin username, email, avatar_path
         const userInfo = {
             username: user.username,
             email: user.email,
-            thumbnail_path: user.thumbnail_path
+            thumbnail_path: user.thumbnail_path,
+            vipExpiry: vipExpiry1
+
+
         };
+
+        console.log(userInfo.vipExpiry);
 
         return userInfo;
     } catch (error) {
         console.error('Error occurred:', error);
         return null;
-    } 
+    } finally {
+        //await client.close();
+    }
 }
 async function updatePassword(username, newPassword) {
     try {
-        
+        await client.connect();
         const database = client.db('movieweb');
         const userCollection = database.collection('user');
 
@@ -265,12 +403,14 @@ async function updatePassword(username, newPassword) {
     } catch (error) {
         console.error('Error occurred:', error);
         return false;
-    } 
+    } finally {
+        //await client.close();
+    }
 }
 
 async function getMoviePath(id) {
     try {
-        
+        await client.connect();
         const database = client.db('movieweb');
         const movieCollection = database.collection('movies');
 
@@ -281,23 +421,32 @@ async function getMoviePath(id) {
             console.log('Movie not found');
             return [];
         }
+        // Tăng biến view lên 1
+        await movieCollection.updateOne(
+            { id: id },
+            { $inc: { views: 1 } }
+        );
         return movie.path;
     } catch (error) {
         console.error('Error occurred:', error);
         return [];
+    } finally {
+        //await client.close();
     }
 }
 
 async function getLatestMovieDetail() {
     try {
-        
+        await client.connect();
         const database = client.db('movieweb');
         const moviesCollection = database.collection('movies');
 
-        // Tính toán năm hiện tại trừ 1
-        const currentYearMinusOne = new Date().getFullYear() - 1;
-        // Truy vấn dữ liệu từ collection movies
-        const movies = await moviesCollection.find({ year: { $gte: currentYearMinusOne } }).toArray();
+        // // Tính toán năm hiện tại trừ 1
+        // const currentYearMinusOne = new Date().getFullYear() - 1;
+        // // Truy vấn dữ liệu từ collection movies
+        // const movies = await moviesCollection.find({ year: { $gte: currentYearMinusOne } }).toArray();
+
+        const movies = await moviesCollection.find().sort({ views: -1 }).limit(14).toArray();
 
         // Lọc và trả về các biến cần thiết
         return movies.map(movie => ({
@@ -314,7 +463,7 @@ async function getLatestMovieDetail() {
 
 async function getHorrorMovieDetail() {
     try {
-        
+        await client.connect();
         const database = client.db('movieweb');
         const moviesCollection = database.collection('movies');
         // Truy vấn dữ liệu từ collection movies
@@ -336,7 +485,7 @@ async function getHorrorMovieDetail() {
 async function getHighestRatingMovieDetail() {
     try {
         console.log('da toi');
-        
+        await client.connect();
         const database = client.db('movieweb');
         const moviesCollection = database.collection('movies');
         // Truy vấn dữ liệu từ collection movies
@@ -357,7 +506,7 @@ async function getHighestRatingMovieDetail() {
 
 async function getMovieDetail(id) {
     try {
-        
+        await client.connect();
         const database = client.db('movieweb');
         const movieCollection = database.collection('movies');
 
@@ -378,17 +527,20 @@ async function getMovieDetail(id) {
             rating: movie.average_rating,
             plot: movie.plot,
             actors: movie.actors,
-            trailer: movie.trailer
+            trailer: movie.trailer,
+            views: movie.views,
         };
     } catch (error) {
         console.error('Error occurred:', error);
         return null; // Trả về null nếu có lỗi xảy ra
+    } finally {
+        //await client.close();
     }
 }
 
 async function addToWatchlist(username, movieId) {
     try {
-        
+        await client.connect();
         const database = client.db('movieweb');
         const userCollection = database.collection('user');
         // Update user's watchlist by adding movieId to it
@@ -407,12 +559,14 @@ async function addToWatchlist(username, movieId) {
     } catch (error) {
         console.error('Error occurred:', error);
         return false;
-    } 
+    } finally {
+        //await client.close();
+    }
 }
 
 async function registernow(username, password) {
     try {
-        
+        await client.connect();
         const database = client.db('movieweb');
         const userCollection = database.collection('user');
 
@@ -436,12 +590,14 @@ async function registernow(username, password) {
     } catch (error) {
         console.error('Error occurred:', error);
         return false;
+    } finally {
+        //await client.close();
     }
 }
 
 async function loginnow(username, password) {
     try {
-        
+        await client.connect();
         const database = client.db('movieweb');
         const userCollection = database.collection('user');
 
@@ -464,11 +620,13 @@ async function loginnow(username, password) {
     } catch (error) {
         console.error('Error occurred:', error);
         return false;
-    } 
+    } finally {
+        //await client.close();
+    }
 }
 async function setUserType(username) {
     try {
-        
+        await client.connect();
         const database = client.db('movieweb');
         const userCollection = database.collection('user');
         // Tạo filter để tìm các tài liệu có trường 'username' bằng giá trị của biến 'username'
@@ -488,7 +646,9 @@ async function setUserType(username) {
     } catch (error) {
         console.error('Error occurred:', error);
         return false;
-    } 
+    } finally {
+        //await client.close();
+    }
 
 }
 
@@ -594,7 +754,7 @@ app.get('/index', async (req, res) => {
         res.json({ latestMovies, horrorMovies, highestRatedMovies });
 
         // Sau khi hoàn thành tất cả các yêu cầu, đóng kết nối đến MongoDB
-        await client.close();
+        //await client.close();
     } catch (error) {
         console.error('Error occurred:', error);
         res.status(500).send('Internal Server Error');
@@ -669,12 +829,14 @@ app.post('/login', async (req, res) => {
     try {
         const success = await loginnow(username, password);
         if (!success) {
-            return res.status(404).json({ error: 'Account or password is incorrect' });
+            // return res.status(404).json({ error: 'Account or password is incorrect' });
+            console.log('Khong thanh cong');
+            res.redirect('/login.html');
         }
         //res.status(200).json({ message: 'Log in successful' });
         // const id = 123; // Thay thế 123 bằng giá trị id thích hợp
         // const type = "user"; // Thay thế "user" bằng giá trị type thích hợp
-        res.status(200).json({ message: 'Log in successful', type: success.type });
+        else{res.status(200).json({ message: 'Log in successful', type: success.type });}
     } catch (error) {
         console.error('Error occurred:', error);
         res.status(500).json({ error: 'Internal server error' });
@@ -697,9 +859,9 @@ const commentSchema = new mongoose.Schema({
 const Comment = mongoose.model("Comment", commentSchema);
 async function getComments(movieID) {
     try {
-        
+        await client.connect();
         const db = client.db("movieweb"); // Database name
-        const commentCollection = db.collection("newcomment"); // comment collection
+        const commentCollection = db.collection("comments"); // comment collection
         const userCollection = db.collection("user"); // user collection
 
         const comments = await commentCollection
@@ -737,9 +899,9 @@ async function getComments(movieID) {
 //function insert comment into MongoDB
 async function postComment(comment) {
     try {
-        
+        await client.connect();
         var db = client.db("movieweb"); // Database name
-        db.collection("newcomment").insertOne(comment); //insert to db
+        db.collection("comments").insertOne(comment); //insert to db
         return { status: 201, message: "Comment saved to Mongo successfully" };
     } catch (err) {
         console.log(err);
@@ -751,7 +913,7 @@ async function postComment(comment) {
 // app.get("/user/:userName", async function (req, res) {
 //     try {
 //         console.log('ok');
-//         
+//         await client.connect();
 //         var db = await client.db("movieweb");
 //         var user = db.collection("user");
 //         var user = await user.findOne({ username: req.params.userName });
@@ -785,7 +947,7 @@ app.post("/postcomment/:movieId/:username", async (req, res) => {
             movie_id: movie_id,
             username: username,
             content: content,
-            rating: rating,
+            // rating: rating,
             created_at: created_at,
         });
 
