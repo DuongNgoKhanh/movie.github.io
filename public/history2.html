@@ -95,7 +95,7 @@
                         var movieData;
                         var username = localStorage.getItem('username');
 
-                        xhr.open("GET", "http://localhost:3000/watchlist/" + username, true);
+                        xhr.open("GET", "/watchlist/" + username, true);
                         xhr.onload = function () {
                             if (xhr.status === 200) {
                                 movieData = JSON.parse(xhr.responseText); // Gán nội dung phản hồi vào biến movieData
@@ -158,7 +158,7 @@
 
                             // Xác định phương thức và URL của yêu cầu
                             const method = 'DELETE';
-                            const url = `http://localhost:3000/watchlist/${username}/${movieId}`; // Đảm bảo biến username đã được khai báo và gán giá trị
+                            const url = `/watchlist/${username}/${movieId}`; // Đảm bảo biến username đã được khai báo và gán giá trị
 
                             // Mở kết nối
                             xhr.open(method, url, true);
@@ -188,7 +188,7 @@
                             const clearBtn = document.querySelector('.Watch-list-clear-btn');
                             clearBtn.addEventListener('click', function () {
                                 // Gửi yêu cầu DELETE đến endpoint /watchlist/:username
-                                xhr.open("DELETE", "http://localhost:3000/watchlist/" + username, true);
+                                xhr.open("DELETE", "/watchlist/" + username, true);
                                 xhr.setRequestHeader("Content-Type", "application/json");
 
                                 // Xử lý phản hồi từ server
