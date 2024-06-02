@@ -583,6 +583,7 @@ async function registernow(username, password) {
             username: username,
             password: hashedPassword,
             type: "free",
+            thumbnail_path: "assets/images/review/author-01.png"
         };
 
         const result = await userCollection.insertOne(newUser);
