@@ -249,6 +249,9 @@ router.get("/movies", async (req, res) => {
             filterOptions.age_rating = age_rating;
         }
 
+	            // Log movie with id=1
+        const movieWithId1 = await Movie.findOne({ id: 1 });
+        console.log('test log: ',movieWithId1);
 
         const movies = await Movie.find(filterOptions)
             .where("genre")
@@ -271,8 +274,8 @@ router.get("/movies", async (req, res) => {
             movies,
             // id
         };
-        console.log("Filter Options:", filterOptions);
-        console.log("Sort By:", sortBy);
+        //console.log("Filter Options:", filterOptions);
+        //console.log("Sort By:", sortBy);
 
         res.status(200).json(response);
     } catch (err) {
