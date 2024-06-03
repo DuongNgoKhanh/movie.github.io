@@ -14,5 +14,5 @@ const connectDB = async () => {
         process.exit(1); // Dừng ứng dụng nếu kết nối thất bại
     }
 };
-
+mongoose.set('debug', true);
 module.exports = connectDB;
