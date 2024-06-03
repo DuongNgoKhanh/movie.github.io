@@ -89,6 +89,8 @@
         const amount = urlParams.get('amount');
         const plan = urlParams.get('plan');
 
+        localStorage.setItem('usertype', 'pay');
+        
         // Hiển thị thông tin thanh toán
         document.getElementById('username').textContent = `Username: ${username}`;
         document.getElementById('vipExpiry').textContent = `VIP Expiry Date: ${vipExpiry}`;
