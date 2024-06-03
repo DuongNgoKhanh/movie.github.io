@@ -1,127 +1,92 @@
-const router = require("express").Router();
-const Movie = require("../models/Movie");
-const movies = require("../config/movies.json");
 
+const router = require("express").Router();
+const { MongoClient } = require('mongodb');
+const uri = process.env.mongoURI;
+const client = new MongoClient(uri);
 
 router.get("/movies", async (req, res) => {
-    try {
-	const totalmovie = await Movie.countDocuments();
-        console.log("Total number of records in collection:", totalmovie); // Log số lượng bản ghi
+ try {
+     // Kết nối tới MongoDB
+     await client.connect();
+     console.log("Connected to MongoDB Atlas");
 
+     // Truy cập tới cơ sở dữ liệu và collection
+     const database = client.db('movieweb');
+     const moviesCollection = database.collection('movies');
 
-        const page = parseInt(req.query.page) - 1 || 0;
-        const limit = parseInt(req.query.limit) || 14;
-        const search = req.query.search || "";
+     const totalmovie = await moviesCollection.countDocuments();
+     console.log("Total number of records in collection:", totalmovie);
 
-        let sort = req.query.sort || "rating";
-        let genre = req.query.genre || "- All -";
-        let year = req.query.year || "- All -";
-        let average_rating = req.query.average_rating || "- All -";
-        let age_rating = req.query.age_rating || "- All -";
+     const page = parseInt(req.query.page) - 1 || 0;
+     const limit = parseInt(req.query.limit) || 14;
+     const search = req.query.search || "";
 
-        // console.log('Year   ',year);
+     let sort = req.query.sort || "rating";
+     let genre = req.query.genre || "- All -";
+     let year = req.query.year || "- All -";
+     let average_rating = req.query.average_rating || "- All -";
+     let age_rating = req.query.age_rating || "- All -";
 
+     const genreOptions = [
+         "Action", "Romance", "Fantasy", "Drama", "Crime",
+         "Adventure", "Thriller", "Sci-fi", "Music", "Family",
+     ];
 
-        const genreOptions = [
-            "Action",
-            "Romance",
-            "Fantasy",
-            "Drama",
-            "Crime",
-            "Adventure",
-            "Thriller",
-            "Sci-fi",
-            "Music",
-            "Family",
-        ];
+     const yearOptions = [];
+     const ratingOptions = [];
+     const ageRatingOptions = [];
 
-        const yearOptions = []; // Tạo mảng chứa các năm từ dữ liệu
+     genre = (genre === "- All -") ? genreOptions : req.query.genre.split(",");
+     sort = req.query.sort ? req.query.sort.split(",") : [sort];
 
-        // Tạo mảng các rating từ dữ liệu
-        const ratingOptions = [];
+     let sortBy = {};
+     // if (sort[1]) {
+     //     sortBy[sort[0]] = sort[1];
+     // } else {
+     //     sortBy[sort[0]] = "desc";
+     // }
 
-        const ageRatingOptions = [];
+     let filterOptions = {
+         title: { $regex: search, $options: "i" },
+         genre: { $in: genre }
+     };
+     if (year !== "- All -") {
+         filterOptions.year = year;
+     }
+     if (average_rating !== "- All -") {
+         filterOptions.average_rating = average_rating;
+     }
+     if (age_rating !== "- All -") {
+         filterOptions.age_rating = age_rating;
+     }
 
-        genre =="- All -"
-            ? (genre = [...genreOptions])
-            : (genre = req.query.genre.split(","));
-        req.query.sort ? (sort = req.query.sort.split(",")) : (sort = [sort]);
+     const movies = await moviesCollection.find(filterOptions)
+         .sort(sortBy)
+         .skip(page * limit)
+         .limit(limit)
+         .toArray();
 
-        let sortBy = {};
-		// if (sort[1]) {
-		// 	sortBy[sort[0]] = sort[1];
-		// } else {
-		// 	sortBy[sort[0]] = "desc";
-		// }
-        // Tạo đối tượng để lọc theo năm, rating và age_rating
-        let filterOptions = {
-            title: { $regex: search, $options: "i" },
-            genre: { $in: [...genre] },
-            // year: { $in: year },
-            // rating: { $in: rating },
-            // age_rating: { $in: age_rating}
-        };
-        // console.log('Year   ',year);
-        if (year != "- All -") {
+     const total = await moviesCollection.countDocuments(filterOptions);
 
-            filterOptions.year = year;
-            
-        }
-  
-        if (average_rating !="- All -") {
-            filterOptions.average_rating = average_rating;
-        }
+     const response = {
+         error: false,
+         total,
+         page: page + 1,
+         limit,
+         genres: genreOptions,
+         years: yearOptions,
+         average_rating: ratingOptions,
+         age_rating: ageRatingOptions,
+         movies,
+     };
+     console.log("Filter Options:", filterOptions);
+     console.log('movies: ', movies);
 
-        if (age_rating!= "- All -") {
-            filterOptions.age_rating = age_rating;
-        }
-
-        const movies = await Movie.find(filterOptions)
-            .where("genre")
-			.in([...genre])
-            .sort(sortBy)
-            .skip(page * limit)
-            .limit(limit);
-
-        const total = await Movie.countDocuments(filterOptions);
-
-        const response = {
-            error: false,
-            total,
-            page: page + 1,
-            limit,
-            genres: genreOptions,
-            years: yearOptions,
-            average_rating: ratingOptions,
-            age_rating: ageRatingOptions,
-            movies,
-            // id
-        };
-        console.log("Filter Options:", filterOptions);
-	console.log('movies: ', movies);
-        //console.log("Sort By:", sortBy);
-
-        res.status(200).json(response);
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({ error: true, message: "Internal Server Error" });
-    }
+     res.status(200).json(response);
+ } catch (err) {
+     console.log(err);
+     res.status(500).json({ error: true, message: "Internal Server Error" });
+ } 
 });
 
-// const insertMovies = async () => {
-//     try {
-//         const docs = await Movie.insertMany(movies);
-//         return Promise.resolve(docs);
-//     } catch (err) {
-//         return Promise.reject(err)
-//     }
-// };
-
-// insertMovies()
-//     .then((docs) => console.log(docs))
-//     .catch((err) => console.log(err))
-
-
 module.exports = router;
-
-
