@@ -8,7 +8,7 @@ const connectDB = async () => {
     try {
         await client.connect();
 
-        console.log('MongoDB connected');
+        console.log('MongoDB Anh quoc connected');
     } catch (error) {
         console.error('MongoDB connection failed', error);
         process.exit(1); // Dừng ứng dụng nếu kết nối thất bại
