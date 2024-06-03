@@ -174,6 +174,8 @@
 
 // // module.exports = router;
 
+console.log('check point 1');
+
 const router = require("express").Router();
 const Movie = require("../models/Movie");
 const movies = require("../config/movies.json");
@@ -181,7 +183,7 @@ const movies = require("../config/movies.json");
 
 router.get("/movies", async (req, res) => {
     try {
-	
+	console.log('check point 2');
         const page = parseInt(req.query.page) - 1 || 0;
         const limit = parseInt(req.query.limit) || 14;
         const search = req.query.search || "";
@@ -194,7 +196,7 @@ router.get("/movies", async (req, res) => {
 
         // console.log('Year   ',year);
 
-
+console.log('check point 3');
         const genreOptions = [
             "Action",
             "Romance",
@@ -248,7 +250,7 @@ router.get("/movies", async (req, res) => {
         if (age_rating!= "- All -") {
             filterOptions.age_rating = age_rating;
         }
-
+console.log('check point 4');
 	            // Log movie with id=1
         const movieWithId1 = await Movie.findOne({ id: 1 });
         console.log('test log: ',movieWithId1);
