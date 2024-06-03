@@ -177,6 +177,9 @@
 const router = require("express").Router();
 const Movie = require("../models/Movie");
 const movies = require("../config/movies.json");
+
+//Mongo
+const { MongoClient } = require('mongodb');
 const uri = process.env.mongoURI;
 const client = new MongoClient(uri);
 
