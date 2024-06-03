@@ -94,7 +94,8 @@ router.get("/movies", async (req, res) => {
             movies,
             // id
         };
-        //console.log("Filter Options:", filterOptions);
+        console.log("Filter Options:", filterOptions);
+	console.log('movies: ', movies);
         //console.log("Sort By:", sortBy);
 
         res.status(200).json(response);
