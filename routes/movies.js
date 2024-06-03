@@ -185,7 +185,13 @@ const client = new MongoClient(uri);
 
 router.get("/movies", async (req, res) => {
     try {
-	await client.connect();
+	client.connect()
+	    .then(() => {
+    console.log('Đã thành công');
+  })
+  .catch(error => {
+    console.error('Kết nối thất bại:', error);
+  });
         const page = parseInt(req.query.page) - 1 || 0;
         const limit = parseInt(req.query.limit) || 14;
         const search = req.query.search || "";
