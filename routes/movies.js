@@ -5,8 +5,8 @@ const movies = require("../config/movies.json");
 
 router.get("/movies", async (req, res) => {
     try {
-	const total = await Movie.countDocuments();
-        console.log("Total number of records in collection:", total); // Log số lượng bản ghi
+	const totalmovie = await Movie.countDocuments();
+        console.log("Total number of records in collection:", totalmovie); // Log số lượng bản ghi
 
 
         const page = parseInt(req.query.page) - 1 || 0;
