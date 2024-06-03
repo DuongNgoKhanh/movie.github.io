@@ -177,9 +177,12 @@
 const router = require("express").Router();
 const Movie = require("../models/Movie");
 const movies = require("../config/movies.json");
+const uri = process.env.mongoURI;
+const client = new MongoClient(uri);
 
 router.get("/movies", async (req, res) => {
     try {
+	await client.connect();
         const page = parseInt(req.query.page) - 1 || 0;
         const limit = parseInt(req.query.limit) || 14;
         const search = req.query.search || "";
