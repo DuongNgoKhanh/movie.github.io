@@ -178,20 +178,10 @@ const router = require("express").Router();
 const Movie = require("../models/Movie");
 const movies = require("../config/movies.json");
 
-//Mongo
-const { MongoClient } = require('mongodb');
-const uri = process.env.mongoURI;
-const client = new MongoClient(uri);
 
 router.get("/movies", async (req, res) => {
     try {
-	client.connect()
-	    .then(() => {
-    console.log('Đã thành công');
-  })
-  .catch(error => {
-    console.error('Kết nối thất bại:', error);
-  });
+	
         const page = parseInt(req.query.page) - 1 || 0;
         const limit = parseInt(req.query.limit) || 14;
         const search = req.query.search || "";
