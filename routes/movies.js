@@ -251,9 +251,16 @@ router.get("/movies", async (req, res) => {
             filterOptions.age_rating = age_rating;
         }
 
-	            // Log movie with id=1
-        const movieWithId1 = await Movie.findOne({ id: 1 });
-        console.log('test log: ',movieWithId1);
+	            try {
+            const movieWithId1 = await Movie.findOne({ id: 1 });
+            if (!movieWithId1) {
+                console.log('No movie found with id 1');
+            } else {
+                console.log('Found movie:', movieWithId1);
+            }
+        } catch (error) {
+            console.error('Error finding movie with id 1:', error);
+        }
 
         const movies = await Movie.find(filterOptions)
             .where("genre")
