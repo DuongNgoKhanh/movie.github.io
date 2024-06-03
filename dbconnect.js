@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
 
 // URL kết nối đến MongoDB
-const uri = process.env.mongoURI;
+//const uri = process.env.mongoURI;
+const uri = "mongodb+srv://duong:<password>@movieweb.tehyrrt.mongodb.net/?retryWrites=true&w=majority&appName=Movieweb";
 const connectDB = async () => {
     try {
         await mongoose.connect(uri, {
